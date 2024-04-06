@@ -1,4 +1,4 @@
-export type HistoryResponse = {
+export type GetRecentTracksResponse = {
   recenttracks: Recenttracks;
 };
 
