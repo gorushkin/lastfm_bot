@@ -19,6 +19,7 @@ class AppError extends Error {
 
   static UserError: typeof UserError;
   static LastFmError: typeof LastFmError;
+  static ServiceError: typeof ServiceError;
 
   constructor (
     public message: string
@@ -42,7 +43,15 @@ class LastFmError extends AppError {
   }
 }
 
+class ServiceError extends AppError {
+  constructor () {
+    super('Something went wrong!!!');
+    this.type = AppErrors.serviceUnavailableError;
+  }
+}
+
 AppError.UserError = UserError;
 AppError.LastFmError = LastFmError;
+AppError.ServiceError = ServiceError;
 
 export { AppError };

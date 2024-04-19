@@ -17,4 +17,10 @@ export class LastFMuser {
 
   @OneToMany(() => LastFMuser, (lastFMuser) => lastFMuser.friends)
     friends: LastFMuser[];
+
+  @Column()
+    image: string;
+
+  @Column()
+    url: string;
 }

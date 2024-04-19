@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { userService } from '@/services/userService';
-import { SCREEN, stateInstance } from '@/state';
+import { MODE, stateInstance } from '@/state';
 import type TelegramBot from 'node-telegram-bot-api';
 
 enum Commands {
@@ -28,10 +28,15 @@ const addRoutes = async (bot: TelegramBot) => {
 
     const { id, username } = msg.from;
 
-    const user = await userService.initUser({ id, username });
+    try {
+      const user = await userService.initUser({ id, username });
+      console.log('user: ', user);
+    } catch (e) {
+      console.log('e: ', e);
+    }
 
     stateInstance.initUser(id);
-    stateInstance.setScreenInputName(id);
+    stateInstance.setModeInputLastFM(id);
 
     void bot.sendMessage(msg.chat.id, 'Input your lastfm name');
   });
@@ -53,14 +58,15 @@ const addRoutes = async (bot: TelegramBot) => {
 
     const text = msg?.text?.slice(1) as Commands;
     const { id } = msg.from;
+
     if (allCommands.includes(text)) return;
+
     const userInfo = stateInstance.getUserInfo(id);
 
-    if (userInfo.screen === SCREEN.SET_INPUT_NAME) {
+    if (userInfo.screen === MODE.SET_INPUT_NAME) {
       const lastFMUser = msg.text;
       if (lastFMUser === undefined) return;
       const lastFmUser = await userService.setLastFMUser({ id, lastFMUser });
-      console.log('lastFmUser: ', lastFmUser);
       void bot.sendMessage(msg.chat.id, 'Ok');
       return;
     }

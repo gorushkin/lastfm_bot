@@ -1,26 +1,27 @@
-export enum SCREEN {
+export enum MODE {
   SET_INPUT_NAME = 'set_input_name',
-  // LASTFM_NAME_IS_READY = 'lastfm_name_is_ready',
   NONE = 'none',
 }
 
+type UserId = number;
+
 class State {
-  data = new Map<number, SCREEN>();
+  data = new Map<UserId, MODE>();
 
-  setScreen = (id: number, screen: SCREEN) => this.data.set(id, screen);
+  setMode = (id: number, screen: MODE) => this.data.set(id, screen);
 
-  setScreenInputName = (id: number) => this.setScreen(id, SCREEN.SET_INPUT_NAME);
+  setModeInputLastFM = (id: number) => this.setMode(id, MODE.SET_INPUT_NAME);
 
   checkUser = (id: number) => !!this.data.has(id);
 
   initUser = (id: number) => {
     if (!this.checkUser(id)) {
-      this.setScreen(id, SCREEN.NONE);
+      this.setMode(id, MODE.NONE);
     }
-    return this.getScreen(id);
+    return this.getMode(id);
   };
 
-  getScreen = (id: number) => this.data.get(id);
+  getMode = (id: number) => this.data.get(id);
 
   getUsers = () => {
     return Array.from(this.data.keys());
@@ -29,7 +30,7 @@ class State {
   getUserInfo = (id: number) => {
     return {
       id,
-      screen: this.getScreen(id)
+      screen: this.getMode(id)
     };
   }
 }

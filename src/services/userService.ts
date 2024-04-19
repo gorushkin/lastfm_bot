@@ -3,6 +3,7 @@ import { dataSource } from '@/connetctions/data-source';
 import { User } from '@/entity/user';
 import { AppError } from '@/errors';
 import { type Repository } from 'typeorm';
+import { lastFMService } from './lstFmUserService';
 
 class UserService {
   repo: Repository<User>;
@@ -13,16 +14,8 @@ class UserService {
 
   isUserExist = async (id: number) => await this.repo.findOneBy({ id });
 
-  getLastFmUser = async (lastFMUser: string) => {
-    const response = await getUserInfo(lastFMUser);
-    if (response.ok) {
-      return response.data.user;
-    }
-    return null;
-  };
-
   checkLastFmUsername = async (lastFMUser: string) => {
-    return !((await this.getLastFmUser(lastFMUser)) == null);
+    return !((await lastFMService.getUser(lastFMUser)) == null);
   };
 
   setLastFMUser = async ({
@@ -33,16 +26,18 @@ class UserService {
     lastFMUser: string;
   }) => {
     const user = await this.isUserExist(id);
+
     if (user === null) {
       throw new AppError.UserError();
     }
-    const lastFmUser = await this.getLastFmUser(lastFMUser);
+
+    const lastFmUser = await lastFMService.getUser(lastFMUser);
 
     if (lastFmUser === null) {
       throw new AppError.LastFmError();
     }
+
     user.lastFMUser = lastFMUser;
-    user.image = lastFmUser.image[3]['#text'];
     await this.repo.save(user);
     return user;
   };

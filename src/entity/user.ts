@@ -16,7 +16,4 @@ export class User {
 
   @Column({ nullable: true })
     lastFMUser: string;
-
-  @Column()
-    image?: string;
 }

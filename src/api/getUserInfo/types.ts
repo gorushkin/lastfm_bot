@@ -1,8 +1,8 @@
 export type GetGetUserInfoResponse = {
-  user: User;
+  user: LastFmUserDTO;
 }
 
-export type User = {
+export type LastFmUserDTO = {
   name: string;
   age: string;
   subscriber: string;
