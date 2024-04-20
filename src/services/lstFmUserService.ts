@@ -22,11 +22,6 @@ class LastFMService {
 
     const response = await getUserInfo(username);
 
-    if (!response.ok) {
-      console.log(response.error);
-      // throw new AppError.ServiceError();
-    }
-
     return null;
   };
 

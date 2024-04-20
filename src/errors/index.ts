@@ -37,8 +37,8 @@ class UserError extends AppError {
 }
 
 class LastFmError extends AppError {
-  constructor () {
-    super('Last.fm user does not exist!!!');
+  constructor (message?: string) {
+    super(message ?? 'Last.fm user does not exist!!!');
     this.type = AppErrors.lastFmError;
   }
 }
