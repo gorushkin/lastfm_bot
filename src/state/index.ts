@@ -1,6 +1,7 @@
 export enum MODE {
-  SET_INPUT_NAME = 'set_input_name',
-  NONE = 'none',
+  SET_INPUT_NAME = 'SET_INPUT_NAME',
+  GET_RECENT_TRACKS = 'GET_RECENT_TRACKS',
+  NONE = 'NONE',
 }
 
 type UserId = number;
@@ -11,6 +12,7 @@ class State {
   setMode = (id: number, screen: MODE) => this.data.set(id, screen);
 
   setModeInputLastFM = (id: number) => this.setMode(id, MODE.SET_INPUT_NAME);
+  setModeNone = (id: number) => this.setMode(id, MODE.NONE);
 
   checkUser = (id: number) => !!this.data.has(id);
 
@@ -32,6 +34,11 @@ class State {
       id,
       screen: this.getMode(id)
     };
+  }
+
+  getInfo = () => {
+    const info = this.getUsers().map(this.getUserInfo);
+    console.log(info);
   }
 }
 

@@ -1,3 +1,6 @@
+import type TelegramBot from 'node-telegram-bot-api';
+import { type CallbackQuery, type Message } from 'node-telegram-bot-api';
+
 enum AppErrors {
   appError,
   userError,
@@ -17,13 +20,12 @@ enum AppErrors {
 class AppError extends Error {
   type: AppErrors;
 
-  static UserError: typeof UserError;
-  static LastFmError: typeof LastFmError;
-  static ServiceError: typeof ServiceError;
+  static User: typeof UserError;
+  static LastFm: typeof LastFmError;
+  static Service: typeof ServiceError;
+  static Validation: typeof ValidationError;
 
-  constructor (
-    public message: string
-  ) {
+  constructor (public message: string) {
     super(message);
     this.type = AppErrors.appError;
   }
@@ -50,8 +52,24 @@ class ServiceError extends AppError {
   }
 }
 
-AppError.UserError = UserError;
-AppError.LastFmError = LastFmError;
-AppError.ServiceError = ServiceError;
+class ValidationError extends AppError {
+  constructor (message: string) {
+    super(message);
+    this.type = AppErrors.validationError;
+  }
+}
+
+AppError.User = UserError;
+AppError.LastFm = LastFmError;
+AppError.Service = ServiceError;
+AppError.Validation = ValidationError;
+
+export const errorHandler = async (func: Promise<void>) => {
+  try {
+    await func;
+  } catch (error) {
+    console.error('error: ', error);
+  }
+};
 
 export { AppError };

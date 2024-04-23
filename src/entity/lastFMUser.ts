@@ -7,13 +7,13 @@ import {
 } from 'typeorm';
 
 @Entity()
-@Unique(['id', 'name'])
+@Unique(['id', 'username'])
 export class LastFMuser {
   @PrimaryGeneratedColumn()
     id: number;
 
   @Column()
-    name: string;
+    username: string;
 
   @OneToMany(() => LastFMuser, (lastFMuser) => lastFMuser.friends)
     friends: LastFMuser[];

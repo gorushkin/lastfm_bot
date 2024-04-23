@@ -1,9 +1,10 @@
 import { getUserInfo } from '@/api/getUserInfo/getUserInfo';
-import { dataSource } from '@/connetctions/data-source';
+import { dataSource } from '@/connections/data-source';
 import { User } from '@/entity/user';
 import { AppError } from '@/errors';
 import { type Repository } from 'typeorm';
 import { lastFMService } from './lstFmUserService';
+import { getRecentTracks } from '@/api/getRecentTracks/getRecentTracks';
 
 class UserService {
   repo: Repository<User>;
@@ -12,7 +13,12 @@ class UserService {
     this.repo = dataSource.getRepository(User);
   }
 
-  isUserExist = async (id: number) => await this.repo.findOneBy({ id });
+  findUser = async (id: number) => {
+    return await this.repo.findOne({
+      where: { id },
+      relations: { lastFMUser: true }
+    });
+  };
 
   checkLastFmUsername = async (lastFMUser: string) => {
     return !((await lastFMService.getUser(lastFMUser)) == null);
@@ -20,24 +26,20 @@ class UserService {
 
   setLastFMUser = async ({
     id,
-    lastFMUser
+    lastfmUsername
   }: {
     id: number;
-    lastFMUser: string;
+    lastfmUsername: string;
   }) => {
-    const user = await this.isUserExist(id);
+    const user = await this.findUser(id);
 
     if (user === null) {
-      throw new AppError.UserError();
+      throw new AppError.User();
     }
 
-    const lastFmUser = await lastFMService.getUser(lastFMUser);
+    const lastFmUser = await lastFMService.getUser(lastfmUsername);
 
-    if (lastFmUser === null) {
-      throw new AppError.LastFmError();
-    }
-
-    user.lastFMUser = lastFMUser;
+    user.lastFMUser = lastFmUser;
     await this.repo.save(user);
     return user;
   };
@@ -51,11 +53,39 @@ class UserService {
   };
 
   initUser = async ({ id, username }: { id: number; username?: string }) => {
-    const user = await this.isUserExist(id);
+    const user = await this.findUser(id);
     if (user === null) {
       return await this.createUser(id, username);
     }
     return user;
+  };
+
+  getUserRecentTracks = async (id: number) => {
+    const tracks = await this.getUserTracks(id);
+
+    return tracks
+      .slice(0, 10)
+      .map((item) => `<a href="${item.url}">${item.artist}: ${item.name}</a>`)
+      .join('\n');
+  };
+
+  getUserTracks = async (id: number) => {
+    const user = await this.findUser(id);
+    if (user === null) {
+      throw new AppError.User();
+    }
+    const response = await getRecentTracks(user.lastFMUser.username);
+
+    const tracks = response.recenttracks.track.map((item) => {
+      return {
+        artist: item.artist['#text'],
+        name: item.name,
+        album: item.album['#text'],
+        url: item.url
+      };
+    });
+
+    return tracks;
   };
 }
 

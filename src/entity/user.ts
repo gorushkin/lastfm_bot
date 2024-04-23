@@ -1,9 +1,13 @@
 import {
   Column,
   Entity,
+  JoinColumn,
+  OneToOne,
   PrimaryGeneratedColumn,
   Unique
 } from 'typeorm';
+
+import { LastFMuser } from './lastFMUser';
 
 @Entity()
 @Unique(['id'])
@@ -14,6 +18,7 @@ export class User {
   @Column()
     username: string;
 
-  @Column({ nullable: true })
-    lastFMUser: string;
+  @OneToOne(() => LastFMuser, (lastFMuser) => lastFMuser)
+  @JoinColumn()
+    lastFMUser: LastFMuser;
 }

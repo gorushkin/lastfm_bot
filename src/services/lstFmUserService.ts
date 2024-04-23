@@ -1,9 +1,8 @@
 import { type Repository } from 'typeorm';
 import { LastFMuser } from '@/entity/lastFMUser';
-import { dataSource } from '@/connetctions/data-source';
+import { dataSource } from '@/connections/data-source';
 import { getUserInfo } from '@/api/getUserInfo/getUserInfo';
 import { type LastFmUserDTO } from '@/api/getUserInfo/types';
-import { AppError } from '@/errors';
 
 class LastFMService {
   repo: Repository<LastFMuser>;
@@ -13,25 +12,27 @@ class LastFMService {
   }
 
   findUser = async (username: string) => {
-    return await this.repo.findOne({ where: { name: username } });
+    return await this.repo.findOne({ where: { username } });
   };
 
   getUser = async (username: string) => {
-    const user = await this.findUser(username);
-    if (user != null) return user;
+    const fromDBUser = await this.findUser(username);
+
+    if (fromDBUser != null) return fromDBUser;
 
     const response = await getUserInfo(username);
 
-    return null;
+    const newUser = await this.createUser(response.user);
+
+    return newUser;
   };
 
   createUser = async (userDTO: LastFmUserDTO) => {
     const user = new LastFMuser();
-    user.name = userDTO.name;
+    user.username = userDTO.name;
     user.url = userDTO.url;
     user.image = userDTO.image[3]['#text'];
-    await this.repo.save(user);
-    return userDTO;
+    return await this.repo.save(user);
   };
 }
 
