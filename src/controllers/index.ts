@@ -1,7 +1,7 @@
-import { type Commands, allCommands, options } from '@/constants';
-import { AppError } from '@/errors';
-import { userService } from '@/services/userService';
-import { MODE, stateInstance } from '@/state';
+import { type Commands, allCommands, options } from '../constants';
+import { AppError } from '../errors';
+import { userService } from '../services/userService';
+import { MODE, stateInstance } from '../state';
 import type TelegramBot from 'node-telegram-bot-api';
 
 class BotController {

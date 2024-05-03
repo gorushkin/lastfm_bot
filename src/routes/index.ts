@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { MODE, stateInstance } from '@/state';
+import { MODE, stateInstance } from '../state';
 import type TelegramBot from 'node-telegram-bot-api';
 import { Commands, allCommands, options } from '../constants';
-import { AppError, errorHandler } from '@/errors';
+import { AppError, errorHandler } from '../errors';
 import { type Message } from 'node-telegram-bot-api';
-import { BotController } from '@/controllers';
+import { BotController } from '../controllers';
 
 const onCallbackQuery = async (
   msg: TelegramBot.CallbackQuery,

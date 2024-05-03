@@ -1,10 +1,10 @@
-import { getUserInfo } from '@/api/getUserInfo/getUserInfo';
-import { dataSource } from '@/connections/data-source';
-import { User } from '@/entity/user';
-import { AppError } from '@/errors';
+import { getUserInfo } from '../api/getUserInfo/getUserInfo';
+import { dataSource } from '../connections/data-source';
+import { User } from '../entity/user';
+import { AppError } from '../errors';
 import { type Repository } from 'typeorm';
 import { lastFMService } from './lstFmUserService';
-import { getRecentTracks } from '@/api/getRecentTracks/getRecentTracks';
+import { getRecentTracks } from '../api/getRecentTracks/getRecentTracks';
 
 class UserService {
   repo: Repository<User>;

@@ -1,8 +1,8 @@
 import { type Repository } from 'typeorm';
-import { LastFMuser } from '@/entity/lastFMUser';
-import { dataSource } from '@/connections/data-source';
-import { getUserInfo } from '@/api/getUserInfo/getUserInfo';
-import { type LastFmUserDTO } from '@/api/getUserInfo/types';
+import { LastFMuser } from '../entity/lastFMUser';
+import { dataSource } from '../connections/data-source';
+import { getUserInfo } from '../api/getUserInfo/getUserInfo';
+import { type LastFmUserDTO } from '../api/getUserInfo/types';
 
 class LastFMService {
   repo: Repository<LastFMuser>;
