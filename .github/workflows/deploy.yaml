@@ -35,7 +35,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: List directory contents
-        run: ls -la
+        run: ssh $SSH 'ls -la'
 
 
       - name: Verify .env file
