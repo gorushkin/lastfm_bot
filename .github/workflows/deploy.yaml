@@ -43,8 +43,8 @@ jobs:
           echo "Checking .env file"
           ssh $SSH 'pwd'
           ssh $SSH 'ls ${{vars.WORK_DIR}}'
-          echo "${{vars.WORK_DIR}}/last-fm-bot/.env"
-          ssh $SSH 'cd ${{vars.WORK_DIR}} && cat last-fm-bot/.env'
+          echo "${{vars.WORK_DIR}}/${{vars.APP_NAME}}/.env"
+          ssh $SSH 'cd ${{vars.WORK_DIR}} && cat ${{vars.APP_NAME}}/.env'
 
       - name: Pull image from GHCR
         run: docker pull $IMAGE_NAME
