@@ -18,9 +18,3 @@ const init = async () => {
 };
 
 void init();
-
-// const EVERY_1_SECOND = '*/1 * * * * *';
-
-// schedule.scheduleJob(EVERY_1_SECOND, function () {
-//   void user1.updateData();
-// });

@@ -11,7 +11,10 @@ class State {
 
   setMode = (id: number, screen: MODE) => this.data.set(id, screen);
 
-  setModeInputLastFM = (id: number) => this.setMode(id, MODE.SET_INPUT_NAME);
+  setModeInputLastFM = (id: number) => {
+    this.setMode(id, MODE.SET_INPUT_NAME);
+  };
+
   setModeNone = (id: number) => this.setMode(id, MODE.NONE);
 
   checkUser = (id: number) => !!this.data.has(id);
@@ -27,19 +30,19 @@ class State {
 
   getUsers = () => {
     return Array.from(this.data.keys());
-  }
+  };
 
   getUserInfo = (id: number) => {
     return {
       id,
       screen: this.getMode(id)
     };
-  }
+  };
 
   getInfo = () => {
     const info = this.getUsers().map(this.getUserInfo);
-    console.log(info);
-  }
+    console.log('data', info);
+  };
 }
 
 export const stateInstance = new State();

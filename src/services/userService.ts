@@ -71,6 +71,7 @@ class UserService {
 
   getUserTracks = async (id: number) => {
     const user = await this.findUser(id);
+
     if (user === null) {
       throw new AppError.User();
     }
