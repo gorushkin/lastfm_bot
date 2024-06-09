@@ -38,9 +38,9 @@ jobs:
       - name: Verify .env file
         run: |
           echo "Checking .env file"
-          echo "pwd"
-          echo "ls ${{vars.WORK_DIR}}"
-          echo "cat ${{vars.WORK_DIR}}/last-fm-bot/.env"
+          ssh $SSH 'pwd'
+          ssh $SSH 'ls ${{vars.WORK_DIR}}'
+          echo "${{vars.WORK_DIR}}/last-fm-bot/.env"
           ssh $SSH 'cd ${{vars.WORK_DIR}} && cat last-fm-bot/.env'
 
       - name: Pull image from GHCR
