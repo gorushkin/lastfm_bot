@@ -38,6 +38,7 @@ jobs:
       - name: Verify .env file
         run: |
           echo "Checking .env file"
+          echo "pwd"
           echo "ls ${{vars.WORK_DIR}}"
           echo "cat ${{vars.WORK_DIR}}/last-fm-bot/.env"
           ssh $SSH 'cd ${{vars.WORK_DIR}} && cat last-fm-bot/.env'
