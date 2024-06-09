@@ -34,6 +34,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: List directory contents
+        run: ls -la
+
 
       - name: Verify .env file
         run: |
