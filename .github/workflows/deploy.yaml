@@ -75,4 +75,4 @@ jobs:
           echo $IMAGE_NAME
           echo ${{vars.WORK_DIR}}
           echo ${{vars.APP_NAME}}
-          ssh $SSH 'cd ${{vars.WORK_DIR}} && docker run --pull always  -d --name ${{vars.APP_NAME}} --network ${{vars.APP_NETWORK}}  -p ${{vars.APP_PORT}}:3000 ghcr.io/${{ github.repository_owner }}/${{ vars.APP_NAME }}:latest'
+          ssh $SSH 'cd ${{vars.WORK_DIR}} && docker run --pull always  -d --name ${{vars.APP_NAME}} ghcr.io/${{ github.repository_owner }}/${{ vars.APP_NAME }}:latest'
