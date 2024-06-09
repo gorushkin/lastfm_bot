@@ -1,5 +1,4 @@
-import type TelegramBot from 'node-telegram-bot-api';
-import { type CallbackQuery, type Message } from 'node-telegram-bot-api';
+import { type BotController } from 'controllers';
 
 enum AppErrors {
   appError,
@@ -15,6 +14,7 @@ enum AppErrors {
   internalServerError,
   serviceUnavailableError,
   lastFmError,
+  systemError,
 }
 
 class AppError extends Error {
@@ -24,11 +24,16 @@ class AppError extends Error {
   static LastFm: typeof LastFmError;
   static Service: typeof ServiceError;
   static Validation: typeof ValidationError;
+  static SystemError: typeof SystemError;
 
   constructor (public message: string) {
     super(message);
     this.type = AppErrors.appError;
   }
+
+  isUserError = () => this.type === AppErrors.userError;
+  isLastFMError = () => this.type === AppErrors.lastFmError;
+  isSystemFMError = () => this.type === AppErrors.systemError;
 }
 
 class UserError extends AppError {
@@ -59,17 +64,50 @@ class ValidationError extends AppError {
   }
 }
 
+class SystemError extends AppError {
+  constructor (message: string) {
+    super(message ?? 'System error!!!');
+    this.type = AppErrors.systemError;
+  }
+}
+
 AppError.User = UserError;
 AppError.LastFm = LastFmError;
 AppError.Service = ServiceError;
 AppError.Validation = ValidationError;
+AppError.SystemError = SystemError;
 
-export const errorHandler = async (func: Promise<void>) => {
-  try {
-    await func;
-  } catch (error) {
-    console.error('error: ', error);
-  }
+const sendDefaultError = (
+  botController: BotController,
+  userId: number
+) => {
+  void botController.bot.sendMessage(userId, 'Something went wrong!!!');
 };
+
+export const errorHandler =
+  (botController: BotController, userId: number) =>
+    async (func: Promise<void>) => {
+      try {
+        await func;
+      } catch (error) {
+        if (!(error instanceof AppError)) {
+          console.error(error);
+          sendDefaultError(botController, userId);
+          return;
+        }
+
+        if (error.isUserError()) {
+          void botController.bot.sendMessage(
+            userId,
+            'You should create account first!!! Run command /start'
+          );
+          return;
+        }
+
+        if (error.isSystemFMError()) {
+          sendDefaultError(botController, userId);
+        }
+      }
+    };
 
 export { AppError };

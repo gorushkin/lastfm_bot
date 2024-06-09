@@ -1,11 +1,12 @@
-import { type Commands, allCommands, options } from '@/constants';
-import { AppError } from '@/errors';
-import { userService } from '@/services/userService';
-import { MODE, stateInstance } from '@/state';
+import { options } from '../constants';
+import { AppError } from '../errors';
+import { userService } from '../services/userService';
+import { stateInstance } from '../state';
 import type TelegramBot from 'node-telegram-bot-api';
 
 class BotController {
   bot: TelegramBot;
+  state = stateInstance;
 
   init (bot: TelegramBot) {
     this.bot = bot;
@@ -26,7 +27,10 @@ class BotController {
   };
 
   setLastFmUser = async (msg: TelegramBot.Message) => {
-    if (this.bot == null) return;
+    if (this.bot == null) {
+      throw new AppError('Bot is not initialized');
+    }
+
     const id = this.getMessageId(msg);
 
     const lastfmUsername = this.getMessageText(msg);
@@ -36,7 +40,7 @@ class BotController {
       lastfmUsername
     });
 
-    stateInstance.setModeNone(id);
+    this.state.setModeNone(id);
 
     void this.bot.sendMessage(
       msg.chat.id,
@@ -73,7 +77,7 @@ class BotController {
 
     const userId = msg.from?.id;
     if (userId == null) return;
-    stateInstance.setModeInputLastFM(userId);
+    this.state.setModeInputLastFM(userId);
     void this.bot.sendMessage(msg.chat.id, 'Input your lastfm name');
   };
 }

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { getUrl, Method } from '../config';
 import { type GetGetUserInfoResponse } from './types';
-import { AppError } from '@/errors';
+import { AppError } from '../../errors';
 
 const getGetUserInfoUrl = (user: string) => getUrl(user, Method.GET_USER_INFO);
 

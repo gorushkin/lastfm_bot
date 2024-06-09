@@ -23,7 +23,7 @@ module.exports = {
   rules: {
     'linebreak-style': ['error', 'unix'],
     quotes: ['error', 'single'],
-    'no-console': 'warn',
+    'no-console': ['warn', { allow: ['error'] }],
     semi: 'off',
     '@typescript-eslint/semi': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',

@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { type GetRecentTracksResponse } from '../getGetFriends/types';
 import { getUrl, Method } from '../config';
-import { AppError } from '@/errors';
+import { AppError } from '../../errors';
 
 const getRecentTracksUrl = (user: string) =>
   getUrl(user, Method.GET_RECENT_TRACKS);

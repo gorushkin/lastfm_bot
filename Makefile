@@ -1,0 +1,25 @@
+include .env
+
+start:
+	docker start ${CONTAINER_NAME}
+
+stop:
+	docker stop ${CONTAINER_NAME}
+
+create:
+	docker rm -f ${CONTAINER_NAME} 2>/dev/null || true
+	docker run -d --name ${CONTAINER_NAME} ${IMAGE_NAME}
+
+remove:
+	docker rm -f ${CONTAINER_NAME}
+
+build:
+	docker build -t ${IMAGE_NAME} .
+
+push:
+	docker push ${IMAGE_NAME}
+
+init: build create
+
+print_hello:
+	echo "Hello, world!"
