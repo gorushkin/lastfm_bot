@@ -94,6 +94,11 @@ class UserService {
     if (user === null) {
       throw new AppError.User();
     }
+
+    if (user.lastFMUser == null) {
+      throw new AppError.LastFm('You have no lastfm username');
+    }
+
     const response = await getRecentTracks(user.lastFMUser.username);
 
     const tracks = response.recenttracks.track.map((item) => {

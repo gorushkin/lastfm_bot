@@ -20,5 +20,5 @@ export class User {
 
   @OneToOne(() => LastFMuser, (lastFMuser) => lastFMuser)
   @JoinColumn()
-    lastFMUser: LastFMuser;
+    lastFMUser?: LastFMuser;
 }
