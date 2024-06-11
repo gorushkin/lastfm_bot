@@ -36,11 +36,15 @@ class BotController {
       lastfmUsername
     });
 
+    const message = ((updatedUser?.lastFMUser) != null)
+      ? 'You already have a lastfm name'
+      : 'Press /start to input your lastfm name';
+
     this.state.setModeNone(id);
 
     void this.bot.sendMessage(
       msg.chat.id,
-      `Your lastFm suer is ${updatedUser.lastFMUser.username}\n${updatedUser.lastFMUser.url}`
+      message
     );
   };
 
@@ -82,14 +86,10 @@ class BotController {
 
     const text = isPlaying ? 'Is playing at the moment \n' : '';
 
-    void this.bot.sendMessage(
-      msg.chat.id,
-      `${text}${currentTrackInfo}`,
-      {
-        parse_mode: 'HTML',
-        ...userKeyboard
-      }
-    );
+    void this.bot.sendMessage(msg.chat.id, `${text}${currentTrackInfo}`, {
+      parse_mode: 'HTML',
+      ...userKeyboard
+    });
   };
 }
 

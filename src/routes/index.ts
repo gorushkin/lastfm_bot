@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { stateInstance } from '../state';
 import type TelegramBot from 'node-telegram-bot-api';
-import { botCommands, defaultKeyboard } from '../constants';
+import { botCommands, defaultKeyboard, userKeyboard } from '../constants';
 import { AppError, errorHandler } from '../errors';
 import { BotController } from '../controllers';
 import { userService } from '../services/userService';
@@ -34,12 +34,16 @@ const addRoutes = async (bot: TelegramBot) => {
     stateInstance.initUser(id);
     stateInstance.setModeInputLastFM(id);
 
-    await userService.initUser({ id, username });
+    const user = await userService.initUser({ id, username });
 
-    void bot.sendMessage(msg.chat.id, 'Input your lastfm name', {
+    const message = ((user?.lastFMUser) != null) ? 'You already have a lastfm name' : 'Input your lastfm name';
+
+    const keyboard = (user.lastFMUser != null) ? userKeyboard : defaultKeyboard
+
+    void bot.sendMessage(msg.chat.id, message, {
       parse_mode: 'HTML',
       disable_web_page_preview: true,
-      ...defaultKeyboard
+      ...keyboard
     });
   });
 
