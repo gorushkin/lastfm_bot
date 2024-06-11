@@ -36,9 +36,12 @@ const addRoutes = async (bot: TelegramBot) => {
 
     const user = await userService.initUser({ id, username });
 
-    const message = ((user?.lastFMUser) != null) ? 'You already have a lastfm name' : 'Input your lastfm name';
+    const message =
+      user?.lastFMUser != null
+        ? `Let's do something ${user.lastFMUser.username}`
+        : 'Input your lastfm name';
 
-    const keyboard = (user.lastFMUser != null) ? userKeyboard : defaultKeyboard
+    const keyboard = user.lastFMUser != null ? userKeyboard : defaultKeyboard;
 
     void bot.sendMessage(msg.chat.id, message, {
       parse_mode: 'HTML',
