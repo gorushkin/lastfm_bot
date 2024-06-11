@@ -1,4 +1,3 @@
-import { getUserInfo } from '../api/getUserInfo/getUserInfo';
 import { dataSource } from '../connections/data-source';
 import { User } from '../entity/user';
 import { AppError } from '../errors';
@@ -60,13 +59,33 @@ class UserService {
     return user;
   };
 
+  getConvertedTracks = (
+    tracks: Array<{
+      artist: string;
+      name: string;
+      album: string;
+      url: string;
+    }>,
+    length: number
+  ) => {
+    return tracks
+      .slice(0, length)
+      .map((item) => `<a href="${item.url}">${item.artist}: ${item.name}</a>`)
+      .join('\n');
+  };
+
   getUserRecentTracks = async (id: number) => {
     const tracks = await this.getUserTracks(id);
 
-    return tracks
-      .slice(0, 10)
-      .map((item) => `<a href="${item.url}">${item.artist}: ${item.name}</a>`)
-      .join('\n');
+    return this.getConvertedTracks(tracks, 10);
+  };
+
+  getUserCurrentTrack = async (id: number) => {
+    const tracks = await this.getUserTracks(id);
+
+    const isPlaying = tracks[0].attr?.nowplaying === 'true';
+
+    return { currentTrackInfo: this.getConvertedTracks(tracks, 1), isPlaying };
   };
 
   getUserTracks = async (id: number) => {
@@ -82,7 +101,8 @@ class UserService {
         artist: item.artist['#text'],
         name: item.name,
         album: item.album['#text'],
-        url: item.url
+        url: item.url,
+        attr: item['@attr']
       };
     });
 
