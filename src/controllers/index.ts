@@ -1,4 +1,4 @@
-import { userKeyboard } from '../constants';
+import { defaultKeyboard, userKeyboard } from '../constants';
 import { AppError } from '../errors';
 import { userService } from '../services/userService';
 import { stateInstance } from '../state';
@@ -36,16 +36,17 @@ class BotController {
       lastfmUsername
     });
 
-    const message = ((updatedUser?.lastFMUser) != null)
-      ? 'You already have a lastfm name'
-      : 'Press /start to input your lastfm name';
+    const message =
+      updatedUser?.lastFMUser != null
+        ? `Your lastFm name is ${updatedUser.lastFMUser.username}\n${updatedUser.lastFMUser.url}`
+        : 'Press /start to input your lastfm name';
+
+    const keyboard =
+      updatedUser.lastFMUser != null ? userKeyboard : defaultKeyboard;
 
     this.state.setModeNone(id);
 
-    void this.bot.sendMessage(
-      msg.chat.id,
-      message
-    );
+    void this.bot.sendMessage(msg.chat.id, message, keyboard);
   };
 
   getMessageId = (msg: TelegramBot.Message) => {
@@ -68,9 +69,11 @@ class BotController {
 
   setName = async (msg: TelegramBot.Message) => {
     const userId = msg.from?.id;
-    if (userId == null) return;
+    if (userId == null) {
+      throw new AppError.SystemError('There is no user id');
+    }
     this.state.setModeInputLastFM(userId);
-    void this.bot.sendMessage(msg.chat.id, 'Input your lastfm name');
+    void this.bot.sendMessage(msg.chat.id, 'Input your lastfm name', defaultKeyboard);
   };
 
   cancelActions = async (msg: TelegramBot.Message) => {
