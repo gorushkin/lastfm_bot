@@ -1,81 +1,27 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { MODE, stateInstance } from '../state';
+import { stateInstance } from '../state';
 import type TelegramBot from 'node-telegram-bot-api';
-import { Commands, allCommands, options } from '../constants';
+import { botCommands, defaultKeyboard } from '../constants';
 import { AppError, errorHandler } from '../errors';
-import { type Message } from 'node-telegram-bot-api';
 import { BotController } from '../controllers';
 import { userService } from '../services/userService';
+import { onCallbackQuery } from './onCallbackQuery';
+import { onMessage } from './onMessage';
 
-const onCallbackQuery = async (
-  msg: TelegramBot.CallbackQuery,
-  botController: BotController
-) => {
-  if (msg.message == null) {
-    throw new AppError.SystemError('Message not found');
-  }
-
-  if (msg.data === Commands.GET_RECENT_TRACKS) {
-    await botController.getUserRecentTracks(msg.message);
-    return;
-  }
-
-  void botController.bot.sendMessage(
-    msg.from.id,
-    'What do you want!!!',
-    options
-  );
-};
-
-const onMessage = async (msg: Message, botController: BotController) => {
-  stateInstance.getInfo();
-  console.log('=======onMessage======');
-
-  const text = msg?.text?.slice(1) as Commands;
-  const id = botController.getMessageId(msg);
-
-  if (allCommands.includes(text)) {
-    console.log('do nothing');
-    return;
-  }
-
-  const userInfo = stateInstance.getUserInfo(id);
-  console.log('userInfo.screen: ', userInfo.screen);
-
-  if (userInfo.screen === MODE.SET_INPUT_NAME) {
-    console.log('SET_INPUT_NAME');
-    await botController.setLastFmUser(msg);
-    return;
-  }
-
-  if (userInfo.screen === MODE.GET_RECENT_TRACKS) {
-    await botController.setLastFmUser(msg);
-    return;
-  }
-
-  void botController.bot.sendMessage(
-    msg.chat.id,
-    'What do you want!!!',
-    options
-  );
-};
+export { onCallbackQuery } from './onCallbackQuery';
+export { onMessage } from './onMessage';
 
 const addRoutes = async (bot: TelegramBot) => {
   const botController = new BotController(bot);
 
-  void bot.setMyCommands([
-    { command: Commands.SET_GOAL, description: 'Set followed username' },
-    { command: Commands.GET_FRIENDS, description: 'Get friends' },
-    { command: Commands.SET_NAME, description: 'Set lastfm name' },
-    { command: Commands.START, description: 'Start' },
-    {
-      command: Commands.GET_RECENT_TRACKS,
-      description: 'Get user resent tracks'
-    }
-  ]);
+  void bot.setMyCommands(botCommands);
 
   bot.onText(/\/set_goal/, (msg) => {
     void bot.sendMessage(msg.chat.id, 'setGoal');
+  });
+
+  bot.onText(/\/cancel_action/, (msg) => {
+    void bot.sendMessage(msg.chat.id, 'Ok');
   });
 
   bot.onText(/\/start/, async (msg) => {
@@ -90,7 +36,11 @@ const addRoutes = async (bot: TelegramBot) => {
 
     await userService.initUser({ id, username });
 
-    void bot.sendMessage(msg.chat.id, 'Input your lastfm name');
+    void bot.sendMessage(msg.chat.id, 'Input your lastfm name', {
+      parse_mode: 'HTML',
+      disable_web_page_preview: true,
+      ...defaultKeyboard
+    });
   });
 
   bot.onText(/\/get_friends/, async (msg) => {

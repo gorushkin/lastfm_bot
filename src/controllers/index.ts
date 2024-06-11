@@ -1,4 +1,4 @@
-import { options } from '../constants';
+import { userKeyboard } from '../constants';
 import { AppError } from '../errors';
 import { userService } from '../services/userService';
 import { stateInstance } from '../state';
@@ -27,10 +27,6 @@ class BotController {
   };
 
   setLastFmUser = async (msg: TelegramBot.Message) => {
-    if (this.bot == null) {
-      throw new AppError('Bot is not initialized');
-    }
-
     const id = this.getMessageId(msg);
 
     const lastfmUsername = this.getMessageText(msg);
@@ -57,28 +53,43 @@ class BotController {
   };
 
   getUserRecentTracks = async (msg: TelegramBot.Message) => {
-    if (this.bot == null) {
-      throw new AppError('Bot is not initialized');
-    }
-
     const tracks = await userService.getUserRecentTracks(msg.chat.id);
 
     void this.bot.sendMessage(msg.chat.id, tracks, {
       parse_mode: 'HTML',
       disable_web_page_preview: true,
-      ...options
+      ...userKeyboard
     });
   };
 
   setName = async (msg: TelegramBot.Message) => {
-    if (this.bot == null) {
-      throw new AppError('Bot is not initialized');
-    }
-
     const userId = msg.from?.id;
     if (userId == null) return;
     this.state.setModeInputLastFM(userId);
     void this.bot.sendMessage(msg.chat.id, 'Input your lastfm name');
+  };
+
+  cancelActions = async (msg: TelegramBot.Message) => {
+    const userId = msg.from?.id;
+    if (userId == null) return;
+    this.state.resetMode(userId);
+    void this.bot.sendMessage(msg.chat.id, 'Ok');
+  };
+
+  getUserCurrentTrack = async (msg: TelegramBot.Message) => {
+    const { currentTrackInfo, isPlaying } =
+      await userService.getUserCurrentTrack(msg.chat.id);
+
+    const text = isPlaying ? 'Is playing at the moment \n' : '';
+
+    void this.bot.sendMessage(
+      msg.chat.id,
+      `${text}${currentTrackInfo}`,
+      {
+        parse_mode: 'HTML',
+        ...userKeyboard
+      }
+    );
   };
 }
 

@@ -11,6 +11,10 @@ class State {
 
   setMode = (id: number, screen: MODE) => this.data.set(id, screen);
 
+  resetMode = (id: number) => {
+    this.setMode(id, MODE.NONE)
+  }
+
   setModeInputLastFM = (id: number) => {
     this.setMode(id, MODE.SET_INPUT_NAME);
   };
@@ -41,7 +45,7 @@ class State {
 
   getInfo = () => {
     const info = this.getUsers().map(this.getUserInfo);
-    console.log('data', info);
+    console.info('data', info);
   };
 }
 
