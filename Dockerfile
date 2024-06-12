@@ -2,11 +2,14 @@ FROM node:19-alpine
 
 WORKDIR /app
 
-COPY package.json ./
-COPY tsconfig.json ./
+COPY package.json package-lock.json ./
+
 RUN npm install
-COPY . .
+
+COPY tsconfig.json ./
+COPY src ./src
+COPY .env ./
 
 RUN npm run build
 
-CMD node dist/index.js
+CMD ["node", "dist/index.js"]
