@@ -1,4 +1,4 @@
-import { defaultKeyboard, userKeyboard } from '../constants';
+import { keyboard } from '../constants';
 import { AppError } from '../errors';
 import { userService } from '../services/userService';
 import { stateInstance } from '../state';
@@ -26,12 +26,12 @@ class BotController {
     return username;
   };
 
-  setLastFmUser = async (msg: TelegramBot.Message) => {
-    const id = this.getMessageId(msg);
+  setUser = async (msg: TelegramBot.Message) => {
+    const id = msg.chat.id;
 
     const lastfmUsername = this.getMessageText(msg);
 
-    const updatedUser = await userService.setLastFMUser({
+    const updatedUser = await userService.setUser({
       id,
       lastfmUsername
     });
@@ -41,20 +41,14 @@ class BotController {
         ? `Your lastFm name is ${updatedUser.lastFMUser.username}\n${updatedUser.lastFMUser.url}`
         : 'Press /start to input your lastfm name';
 
-    const keyboard =
-      updatedUser.lastFMUser != null ? userKeyboard : defaultKeyboard;
+    const keyboards =
+      updatedUser.lastFMUser != null
+        ? keyboard.lastFMInfoKeyboard
+        : keyboard.defaultKeyboard;
 
     this.state.setModeNone(id);
 
-    void this.bot.sendMessage(msg.chat.id, message, keyboard);
-  };
-
-  getMessageId = (msg: TelegramBot.Message) => {
-    if (msg.from == null) {
-      throw new AppError('There is no user id');
-    }
-
-    return msg.from.id;
+    void this.bot.sendMessage(msg.chat.id, message, keyboards);
   };
 
   getUserRecentTracks = async (msg: TelegramBot.Message) => {
@@ -63,23 +57,36 @@ class BotController {
     void this.bot.sendMessage(msg.chat.id, tracks, {
       parse_mode: 'HTML',
       disable_web_page_preview: true,
-      ...userKeyboard
+      ...keyboard.lastFMInfoKeyboard
     });
   };
 
-  setName = async (msg: TelegramBot.Message) => {
-    const userId = msg.from?.id;
-    if (userId == null) {
-      throw new AppError.SystemError('There is no user id');
-    }
-    this.state.setModeInputLastFM(userId);
-    void this.bot.sendMessage(msg.chat.id, 'Input your lastfm name', defaultKeyboard);
+  setUsername = async (msg: TelegramBot.Message) => {
+    const id = msg.chat.id;
+
+    this.state.setModeInputLastFM(id);
+    void this.bot.sendMessage(
+      msg.chat.id,
+      'Input your lastfm name',
+      keyboard.defaultKeyboard
+    );
+  };
+
+  getFriends = async (msg: TelegramBot.Message) => {
+    const id = msg.chat.id;
+
+    this.state.setModeInputLastFM(id);
+    void this.bot.sendMessage(
+      msg.chat.id,
+      'I will show your friends here',
+      keyboard.userFriendsKeyboard
+    );
   };
 
   cancelActions = async (msg: TelegramBot.Message) => {
-    const userId = msg.from?.id;
-    if (userId == null) return;
-    this.state.resetMode(userId);
+    const id = msg.chat.id;
+
+    this.state.resetMode(id);
     void this.bot.sendMessage(msg.chat.id, 'Ok');
   };
 
@@ -91,7 +98,25 @@ class BotController {
 
     void this.bot.sendMessage(msg.chat.id, `${text}${currentTrackInfo}`, {
       parse_mode: 'HTML',
-      ...userKeyboard
+      ...keyboard.lastFMInfoKeyboard
+    });
+  };
+
+  getLastFMFriends = async (msg: TelegramBot.Message) => {
+    const friends = await userService.getUserFriends(msg.chat.id);
+
+    const friendsList = friends
+      .map(
+        ({ name }) => `<a href="https://www.last.fm/user/${name}">${name}</a>`
+      )
+      .join('\n');
+
+    const message = `Your lastfm friends \n${friendsList}`;
+
+    void this.bot.sendMessage(msg.chat.id, message, {
+      parse_mode: 'HTML',
+      disable_web_page_preview: true,
+      ...keyboard.lastFMInfoKeyboard
     });
   };
 }
