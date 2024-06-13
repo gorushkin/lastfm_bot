@@ -4,6 +4,7 @@ import { AppError } from '../errors';
 import { type Repository } from 'typeorm';
 import { lastFMService } from './lstFmUserService';
 import { getRecentTracks } from '../api/getRecentTracks/getRecentTracks';
+import { getGetFriendsRequest } from '../api/getGetFriends/getGetFriends';
 
 class UserService {
   repo: Repository<User>;
@@ -12,6 +13,20 @@ class UserService {
     this.repo = dataSource.getRepository(User);
   }
 
+  getUsername = async (id: number) => {
+    const user = await this.findUser(id);
+
+    if (user === null) {
+      throw new AppError.User();
+    }
+
+    if (user.lastFMUser == null) {
+      throw new AppError.LastFm('You have no lastfm username');
+    }
+
+    return user.lastFMUser.username;
+  };
+
   findUser = async (id: number) => {
     return await this.repo.findOne({
       where: { id },
@@ -19,11 +34,7 @@ class UserService {
     });
   };
 
-  checkLastFmUsername = async (lastFMUser: string) => {
-    return !((await lastFMService.getUser(lastFMUser)) == null);
-  };
-
-  setLastFMUser = async ({
+  setUser = async ({
     id,
     lastfmUsername
   }: {
@@ -53,9 +64,11 @@ class UserService {
 
   initUser = async ({ id, username }: { id: number; username?: string }) => {
     const user = await this.findUser(id);
+
     if (user === null) {
       return await this.createUser(id, username);
     }
+
     return user;
   };
 
@@ -89,17 +102,9 @@ class UserService {
   };
 
   getUserTracks = async (id: number) => {
-    const user = await this.findUser(id);
+    const username = await this.getUsername(id);
 
-    if (user === null) {
-      throw new AppError.User();
-    }
-
-    if (user.lastFMUser == null) {
-      throw new AppError.LastFm('You have no lastfm username');
-    }
-
-    const response = await getRecentTracks(user.lastFMUser.username);
+    const response = await getRecentTracks(username);
 
     const tracks = response.recenttracks.track.map((item) => {
       return {
@@ -112,6 +117,14 @@ class UserService {
     });
 
     return tracks;
+  };
+
+  getUserFriends = async (id: number) => {
+    const username = await this.getUsername(id);
+
+    const response = await getGetFriendsRequest(username);
+
+    return response.friends.user;
   };
 }
 

@@ -4,49 +4,80 @@ import {
 } from 'node-telegram-bot-api';
 
 export enum Commands {
-  SET_GOAL = 'set_goal',
-  GET_FRIENDS = 'get_friends',
   SET_NAME = 'set_name',
   START = 'start',
+  LASTFM_INFO = 'lastfm_history',
+  FRIENDS = 'friends',
+}
+
+export enum Buttons {
+  GET_LASTFM_FRIENDS = 'get_lastfm_friends',
   GET_RECENT_TRACKS = 'get_recent_tracks',
   GET_CURRENT_TRACK = 'get_current_playing_track',
   CANCEL = 'cancel_action',
+  ADD_FRIEND = 'add_friend',
 }
 
 export const botCommands = [
-  { command: Commands.SET_NAME, description: 'Set LastFM username' },
-  { command: Commands.START, description: 'Start' }
+  { command: Commands.SET_NAME, description: 'Set username' },
+  { command: Commands.START, description: 'Start' },
+  { command: Commands.FRIENDS, description: 'Friends' },
+  { command: Commands.LASTFM_INFO, description: 'LastFM info' }
 ];
 
 export const allCommands = Object.values(Commands);
 
 const recentTracksButton: InlineKeyboardButton = {
   text: 'Get recent tracks',
-  callback_data: Commands.GET_RECENT_TRACKS
+  callback_data: Buttons.GET_RECENT_TRACKS
 };
 
 const currentTrackButton: InlineKeyboardButton = {
   text: 'Get current track',
-  callback_data: Commands.GET_CURRENT_TRACK
+  callback_data: Buttons.GET_CURRENT_TRACK
+};
+
+const getFriendsButton: InlineKeyboardButton = {
+  text: 'Get friends',
+  callback_data: Buttons.GET_LASTFM_FRIENDS
+};
+
+const addFriendButton: InlineKeyboardButton = {
+  text: 'Add friend',
+  callback_data: Buttons.ADD_FRIEND
 };
 
 const cancelButton: InlineKeyboardButton = {
   text: 'Cancel',
-  callback_data: Commands.CANCEL
+  callback_data: Buttons.CANCEL
 };
 
-const getKeyboard = (buttons: InlineKeyboardButton[]) => ({
-  inline_keyboard: [buttons]
+const getKeyboard = (buttons: InlineKeyboardButton[][]) => ({
+  inline_keyboard: buttons
 });
 
-export const userKeyboard: SendMessageOptions = {
+const lastFMInfoKeyboard: SendMessageOptions = {
   reply_markup: {
-    ...getKeyboard([recentTracksButton, currentTrackButton])
+    ...getKeyboard([
+      [recentTracksButton, currentTrackButton, getFriendsButton]
+    ])
   }
 };
 
-export const defaultKeyboard: SendMessageOptions = {
+const defaultKeyboard: SendMessageOptions = {
   reply_markup: {
-    ...getKeyboard([cancelButton])
+    ...getKeyboard([[cancelButton]])
   }
+};
+
+const userFriendsKeyboard: SendMessageOptions = {
+  reply_markup: {
+    ...getKeyboard([[addFriendButton]])
+  }
+};
+
+export const keyboard = {
+  userFriendsKeyboard,
+  defaultKeyboard,
+  lastFMInfoKeyboard
 };

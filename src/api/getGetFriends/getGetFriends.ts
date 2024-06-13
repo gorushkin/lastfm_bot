@@ -1,21 +1,21 @@
 // https://ws.audioscrobbler.com/2.0/?method=user.getinfo&user=rj&api_key=YOUR_API_KEY&format=json
 import axios from 'axios';
-import { getUrl, Method, type Response } from '../config';
+import { getUrl, Method } from '../config';
 import { type GetGetFriendsResponse } from '../getRecentTracks/types';
+import { AppError } from '../../errors';
 
-const getGetFriendsUrl = (user: string) =>
-  getUrl(user, Method.GET_FRIENDS);
+const getGetFriendsUrl = (user: string) => getUrl(user, Method.GET_FRIENDS);
 
 export const getGetFriendsRequest = async (
   username: string
-): Promise<Response<GetGetFriendsResponse>> => {
+): Promise<GetGetFriendsResponse> => {
   try {
     const response = await axios<GetGetFriendsResponse>(
       getGetFriendsUrl(username)
     );
 
-    return { ok: true, data: response.data };
+    return response.data;
   } catch (error) {
-    return { ok: false, error };
+    throw new AppError.LastFm();
   }
 };
