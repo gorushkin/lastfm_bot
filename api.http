@@ -1,0 +1,10 @@
+
+@start=https://ws.audioscrobbler.com/2.0/?method=
+@end=&user={{$dotenv USER}}&api_key={{$dotenv LAST_FM_API}}&format=json
+
+### Get userinfo
+{{start}}user.getinfo{{end}}
+
+
+### Get user friends
+{{start}}user.getfriends&user{{end}}
