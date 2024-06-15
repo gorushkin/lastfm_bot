@@ -52,12 +52,20 @@ class BotController {
     void this.bot.sendMessage(msg.chat.id, message, keyboards);
   };
 
-  getUserRecentTracks = async (msg: TelegramBot.Message) => {
-    const tracks = await userService.getUserRecentTracks(msg.chat.id);
-
+  onLastFMInfoCommand = async (msg: TelegramBot.Message) => {
     const username = await userService.getUsername(msg.chat.id);
 
-    void this.bot.sendMessage(msg.chat.id, tracks, {
+    await this.getUserRecentTracks(msg, username);
+  };
+
+  showLastFMInfo = async (msg: TelegramBot.Message, username: string) => {
+    await this.getUserRecentTracks(msg, username);
+  };
+
+  getUserRecentTracks = async (msg: TelegramBot.Message, username: string) => {
+    const tracks = await userService.getUserRecentTracks(username);
+
+    await this.bot.sendMessage(msg.chat.id, tracks, {
       parse_mode: 'HTML',
       disable_web_page_preview: true,
       ...keyboard.getLastFMInfoKeyboard(username)
@@ -68,7 +76,7 @@ class BotController {
     const id = msg.chat.id;
 
     this.state.setModeInputUsername(id);
-    void this.bot.sendMessage(
+    await this.bot.sendMessage(
       msg.chat.id,
       'Input your lastfm name',
       keyboard.defaultKeyboard
@@ -86,8 +94,10 @@ class BotController {
       friends.map(({ username }) => username)
     );
 
-    void this.bot.sendMessage(msg.chat.id, message, {
-      ...keyboard.userFriendsKeyboard,
+    await this.bot.sendMessage(msg.chat.id, message, {
+      ...keyboard.getUserFriendsKeyboard(
+        friends.map(({ username }) => username)
+      ),
       parse_mode: 'HTML',
       disable_web_page_preview: true
     });
@@ -97,29 +107,25 @@ class BotController {
     const id = msg.chat.id;
 
     this.state.resetMode(id);
-    void this.bot.sendMessage(msg.chat.id, 'Ok');
+    await this.bot.sendMessage(msg.chat.id, 'Ok');
   };
 
-  getUserCurrentTrack = async (msg: TelegramBot.Message) => {
+  getUserCurrentTrack = async (msg: TelegramBot.Message, username: string) => {
     const { currentTrackInfo, isPlaying } =
-      await userService.getUserCurrentTrack(msg.chat.id);
+      await userService.getUserCurrentTrack(username);
 
     const text = isPlaying ? 'Is playing at the moment \n' : '';
 
-    const username = await userService.getUsername(msg.chat.id);
-
-    void this.bot.sendMessage(msg.chat.id, `${text}${currentTrackInfo}`, {
+    await this.bot.sendMessage(msg.chat.id, `${text}${currentTrackInfo}`, {
       parse_mode: 'HTML',
       ...keyboard.getLastFMInfoKeyboard(username)
     });
   };
 
-  getLastFMFriends = async (msg: TelegramBot.Message) => {
-    const friends = await userService.getUserLastFmFriends(msg.chat.id);
+  getLastFMFriends = async (msg: TelegramBot.Message, username: string) => {
+    const friends = await userService.getUserLastFmFriends(username);
 
     const message = getFriendsListMessage(friends.map(({ name }) => name));
-
-    const username = await userService.getUsername(msg.chat.id);
 
     void this.bot.sendMessage(msg.chat.id, message, {
       parse_mode: 'HTML',
@@ -157,7 +163,7 @@ class BotController {
     void this.bot.sendMessage(
       msg.chat.id,
       message,
-      keyboard.getLastFMUserKeyboard(friend.username)
+      keyboard.getLastFMInfoKeyboard(friend.username)
     );
   };
 

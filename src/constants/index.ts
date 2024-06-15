@@ -17,6 +17,7 @@ export enum Buttons {
   LASTFM_PROFILE = 'lastfm_profile',
   CANCEL = 'cancel_action',
   ADD_FRIEND = 'add_friend',
+  GET_USER = 'get_user',
 }
 
 export const botCommands = [
@@ -28,25 +29,25 @@ export const botCommands = [
 
 export const allCommands = Object.values(Commands);
 
-const recentTracksButton: InlineKeyboardButton = {
+const getRecentTracksButton = (username: string): InlineKeyboardButton => ({
   text: 'Get recent tracks',
-  callback_data: Buttons.GET_RECENT_TRACKS
-};
+  callback_data: `${Buttons.GET_RECENT_TRACKS}/${username}`
+});
 
-const currentTrackButton: InlineKeyboardButton = {
+const getCurrentTrackButton = (username: string): InlineKeyboardButton => ({
   text: 'Get current track',
-  callback_data: Buttons.GET_CURRENT_TRACK
-};
+  callback_data: `${Buttons.GET_CURRENT_TRACK}/${username}`
+});
 
 const getUserLinkButton = (username: string): InlineKeyboardButton => ({
   text: 'User profile',
   url: `https://www.last.fm/user/${username}`
 });
 
-const getFriendsButton: InlineKeyboardButton = {
+const getLastFmFriendsButton = (username: string): InlineKeyboardButton => ({
   text: 'Get friends',
-  callback_data: Buttons.GET_LASTFM_FRIENDS
-};
+  callback_data: `${Buttons.GET_LASTFM_FRIENDS}/${username}`
+});
 
 const addFriendButton: InlineKeyboardButton = {
   text: 'Add friend',
@@ -58,6 +59,11 @@ const cancelButton: InlineKeyboardButton = {
   callback_data: Buttons.CANCEL
 };
 
+const getUserButton = (username: string): InlineKeyboardButton => ({
+  text: username,
+  callback_data: `${Buttons.GET_USER}/${username}`
+});
+
 const getKeyboard = (buttons: InlineKeyboardButton[][]) => ({
   inline_keyboard: buttons
 });
@@ -65,8 +71,8 @@ const getKeyboard = (buttons: InlineKeyboardButton[][]) => ({
 const getLastFMInfoKeyboard = (username: string): SendMessageOptions => ({
   reply_markup: {
     ...getKeyboard([
-      [recentTracksButton, currentTrackButton],
-      [getFriendsButton, getUserLinkButton(username)]
+      [getRecentTracksButton(username), getCurrentTrackButton(username)],
+      [getLastFmFriendsButton(username), getUserLinkButton(username)]
     ])
   }
 });
@@ -77,24 +83,18 @@ const defaultKeyboard: SendMessageOptions = {
   }
 };
 
-const userFriendsKeyboard: SendMessageOptions = {
-  reply_markup: {
-    ...getKeyboard([[addFriendButton]])
-  }
+const getUserFriendsKeyboard = (users: string[]): SendMessageOptions => {
+  const userKeyboards = users.map((user) => [getUserButton(user)]);
+
+  return {
+    reply_markup: {
+      ...getKeyboard([[addFriendButton], ...userKeyboards])
+    }
+  };
 };
 
-const getLastFMUserKeyboard = (username: string): SendMessageOptions => ({
-  reply_markup: {
-    ...getKeyboard([
-      [recentTracksButton, currentTrackButton],
-      [getUserLinkButton(username)]
-    ])
-  }
-});
-
 export const keyboard = {
-  userFriendsKeyboard,
+  getUserFriendsKeyboard,
   defaultKeyboard,
-  getLastFMInfoKeyboard,
-  getLastFMUserKeyboard
+  getLastFMInfoKeyboard
 };

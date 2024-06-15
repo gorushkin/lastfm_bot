@@ -20,7 +20,7 @@ export const onMessage = async (msg: Message, botController: BotController) => {
   }
 
   const { isModeInputFriendName, isModeInputName } =
-  stateInstance.getUserInfo(id);
+    stateInstance.getUserInfo(id);
 
   if (isModeInputName) {
     await botController.setUser(msg);

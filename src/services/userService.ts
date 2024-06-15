@@ -75,21 +75,15 @@ class UserService {
     return user;
   };
 
-  getUserRecentTracks = async (id: number) => {
-    const username = await this.getUsername(id);
-
+  getUserRecentTracks = async (username: string) => {
     return await lastFMApiService.getUserRecentTracks(username);
   };
 
-  getUserCurrentTrack = async (id: number) => {
-    const username = await this.getUsername(id);
-
+  getUserCurrentTrack = async (username: string) => {
     return await lastFMApiService.getUserCurrentTrack(username);
   };
 
-  getUserLastFmFriends = async (id: number) => {
-    const username = await this.getUsername(id);
-
+  getUserLastFmFriends = async (username: string) => {
     return await lastFMApiService.getUserFriends(username);
   };
 
