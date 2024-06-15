@@ -1,7 +1,7 @@
 import { getRecentTracks } from '../api/getRecentTracks/getRecentTracks';
 import { getGetFriendsRequest } from '../api/getGetFriends/getGetFriends';
 
-class LastFMAPIService {
+class LastFMApiService {
   getConvertedTracks = (
     tracks: Array<{
       artist: string;
@@ -23,7 +23,7 @@ class LastFMAPIService {
     return response.friends.user;
   };
 
-  getUserTracks = async (username: string) => {
+  private readonly getUserTracks = async (username: string) => {
     const response = await getRecentTracks(username);
 
     const tracks = response.recenttracks.track.map((item) => {
@@ -38,6 +38,20 @@ class LastFMAPIService {
 
     return tracks;
   };
+
+  getUserCurrentTrack = async (username: string) => {
+    const tracks = await this.getUserTracks(username);
+
+    const isPlaying = tracks[0].attr?.nowplaying === 'true';
+
+    return { currentTrackInfo: this.getConvertedTracks(tracks, 1), isPlaying };
+  };
+
+  getUserRecentTracks = async (username: string) => {
+    const tracks = await this.getUserTracks(username);
+
+    return this.getConvertedTracks(tracks, 10);
+  };
 }
 
-export const lastFMAPIService = new LastFMAPIService();
+export const lastFMApiService = new LastFMApiService();

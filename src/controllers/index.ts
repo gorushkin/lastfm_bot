@@ -79,7 +79,7 @@ class BotController {
 
     this.state.setModeInputFriendName(msg.chat.id);
 
-    const friends = await userService.getUserFriends(msg.chat.id);
+    const friends = await userService.getUserLastFmFriends(msg.chat.id);
     console.log('friends: ', friends);
 
     void this.bot.sendMessage(
@@ -111,7 +111,7 @@ class BotController {
   };
 
   getLastFMFriends = async (msg: TelegramBot.Message) => {
-    const friends = await userService.getUserFriends(msg.chat.id);
+    const friends = await userService.getUserLastFmFriends(msg.chat.id);
 
     const friendsList = friends
       .map(

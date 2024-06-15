@@ -3,7 +3,7 @@ import { User } from '../entity/user';
 import { AppError } from '../errors';
 import { type Repository } from 'typeorm';
 import { lastFMService } from './lastFMService';
-import { lastFMAPIService } from './lastFMAPIService';
+import { lastFMApiService } from './lastFMApiService';
 
 class UserService {
   repo: Repository<User>;
@@ -71,45 +71,22 @@ class UserService {
     return user;
   };
 
-  getConvertedTracks = (
-    tracks: Array<{
-      artist: string;
-      name: string;
-      album: string;
-      url: string;
-    }>,
-    length: number
-  ) => {
-    return tracks
-      .slice(0, length)
-      .map((item) => `<a href="${item.url}">${item.artist}: ${item.name}</a>`)
-      .join('\n');
-  };
-
   getUserRecentTracks = async (id: number) => {
-    const tracks = await this.getUserTracks(id);
+    const username = await this.getUsername(id);
 
-    return this.getConvertedTracks(tracks, 10);
+    return await lastFMApiService.getUserRecentTracks(username);
   };
 
   getUserCurrentTrack = async (id: number) => {
-    const tracks = await this.getUserTracks(id);
-
-    const isPlaying = tracks[0].attr?.nowplaying === 'true';
-
-    return { currentTrackInfo: this.getConvertedTracks(tracks, 1), isPlaying };
-  };
-
-  getUserTracks = async (id: number) => {
     const username = await this.getUsername(id);
 
-    return await lastFMAPIService.getUserTracks(username);
+    return await lastFMApiService.getUserCurrentTrack(username);
   };
 
-  getUserFriends = async (id: number) => {
+  getUserLastFmFriends = async (id: number) => {
     const username = await this.getUsername(id);
 
-    return await lastFMAPIService.getUserFriends(username);
+    return await lastFMApiService.getUserFriends(username);
   };
 
   addFriend = async ({
