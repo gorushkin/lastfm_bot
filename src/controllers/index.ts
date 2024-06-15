@@ -1,3 +1,4 @@
+import { getFriendsListMessage } from '../libs';
 import { keyboard } from '../constants';
 import { AppError } from '../errors';
 import { userService } from '../services/userService';
@@ -79,14 +80,17 @@ class BotController {
 
     this.state.setModeInputFriendName(msg.chat.id);
 
-    const friends = await userService.getUserLastFmFriends(msg.chat.id);
-    console.log('friends: ', friends);
+    const friends = await userService.getUserFriends(msg.chat.id);
 
-    void this.bot.sendMessage(
-      msg.chat.id,
-      'I will show your friends here',
-      keyboard.userFriendsKeyboard
+    const message = getFriendsListMessage(
+      friends.map(({ username }) => username)
     );
+
+    void this.bot.sendMessage(msg.chat.id, message, {
+      ...keyboard.userFriendsKeyboard,
+      parse_mode: 'HTML',
+      disable_web_page_preview: true
+    });
   };
 
   cancelActions = async (msg: TelegramBot.Message) => {
@@ -113,13 +117,7 @@ class BotController {
   getLastFMFriends = async (msg: TelegramBot.Message) => {
     const friends = await userService.getUserLastFmFriends(msg.chat.id);
 
-    const friendsList = friends
-      .map(
-        ({ name }) => `<a href="https://www.last.fm/user/${name}">${name}</a>`
-      )
-      .join('\n');
-
-    const message = `Your lastfm friends \n${friendsList}`;
+    const message = getFriendsListMessage(friends.map(({ name }) => name));
 
     const username = await userService.getUsername(msg.chat.id);
 
@@ -147,19 +145,19 @@ class BotController {
 
     const friendName = this.getMessageText(msg);
 
+    this.state.resetMode(id);
+
     const friend = await userService.addFriend({
       id,
       friendName
     });
 
-    console.log('friend: ', friend);
-
-    this.state.resetMode(id);
+    const message = `You added ${friend.username}\n${friend.url}`;
 
     void this.bot.sendMessage(
       msg.chat.id,
-      'I will show your friend info here11',
-      keyboard.defaultKeyboard
+      message,
+      keyboard.getLastFMUserKeyboard(friend.username)
     );
   };
 

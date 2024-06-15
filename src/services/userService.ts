@@ -12,6 +12,16 @@ class UserService {
     this.repo = dataSource.getRepository(User);
   }
 
+  getUser = async (id: number) => {
+    const user = await this.findUser(id);
+
+    if (user === null) {
+      throw new AppError.User();
+    }
+
+    return user;
+  };
+
   getUsername = async (id: number) => {
     const user = await this.findUser(id);
 
@@ -29,7 +39,7 @@ class UserService {
   findUser = async (id: number) => {
     return await this.repo.findOne({
       where: { id },
-      relations: { lastFMUser: true }
+      relations: { lastFMUser: true, friends: true }
     });
   };
 
@@ -96,11 +106,7 @@ class UserService {
     id: number;
     friendName: string;
   }) => {
-    const user = await this.findUser(id);
-
-    if (user === null) {
-      throw new AppError.User();
-    }
+    const user = await this.getUser(id);
 
     const friend = await lastFMService.getUser(friendName);
 
@@ -109,6 +115,12 @@ class UserService {
     await this.repo.save(user);
 
     return friend;
+  };
+
+  getUserFriends = async (id: number) => {
+    const user = await this.getUser(id);
+
+    return user.friends;
   };
 }
 

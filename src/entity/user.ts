@@ -10,7 +10,6 @@ import {
   PrimaryGeneratedColumn,
   Unique
 } from 'typeorm';
-
 import { LastFMuser } from './lastFMUser';
 
 @Entity()
@@ -26,7 +25,7 @@ export class User {
   @JoinColumn()
     lastFMUser?: LastFMuser;
 
-  @ManyToMany(() => User)
+  @ManyToMany(() => LastFMuser, (lastFMUser) => lastFMUser.users, { cascade: true })
   @JoinTable({
     name: 'user_lastfmUser',
     joinColumn: {

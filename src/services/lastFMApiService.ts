@@ -1,5 +1,6 @@
 import { getRecentTracks } from '../api/getRecentTracks/getRecentTracks';
 import { getGetFriendsRequest } from '../api/getGetFriends/getGetFriends';
+import { getUserInfo } from '../api/getUserInfo/getUserInfo';
 
 class LastFMApiService {
   getConvertedTracks = (
@@ -51,6 +52,12 @@ class LastFMApiService {
     const tracks = await this.getUserTracks(username);
 
     return this.getConvertedTracks(tracks, 10);
+  };
+
+  getUserInfo = async (username: string) => {
+    const response = await getUserInfo(username);
+
+    return response.user;
   };
 }
 

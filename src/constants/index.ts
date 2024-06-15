@@ -83,8 +83,18 @@ const userFriendsKeyboard: SendMessageOptions = {
   }
 };
 
+const getLastFMUserKeyboard = (username: string): SendMessageOptions => ({
+  reply_markup: {
+    ...getKeyboard([
+      [recentTracksButton, currentTrackButton],
+      [getUserLinkButton(username)]
+    ])
+  }
+});
+
 export const keyboard = {
   userFriendsKeyboard,
   defaultKeyboard,
-  getLastFMInfoKeyboard
+  getLastFMInfoKeyboard,
+  getLastFMUserKeyboard
 };

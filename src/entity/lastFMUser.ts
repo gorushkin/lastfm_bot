@@ -17,8 +17,8 @@ export class LastFMuser {
   @Column()
     username: string;
 
-  @OneToMany(() => LastFMuser, (lastFMuser) => lastFMuser.friends)
-    friends: LastFMuser[];
+  @OneToMany(() => User, (user) => user.lastFMUser)
+    users: User[];
 
   @Column()
     image: string;
@@ -27,5 +27,5 @@ export class LastFMuser {
     url: string;
 
   @ManyToMany(() => User, (user) => user.friends)
-    users: User[];
+    friends: User[];
 }

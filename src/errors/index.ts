@@ -35,6 +35,7 @@ class AppError extends Error {
   isUserError = () => this.type === AppErrors.userError;
   isLastFMError = () => this.type === AppErrors.lastFmError;
   isSystemFMError = () => this.type === AppErrors.systemError;
+  isValidationError = () => this.type === AppErrors.validationError;
 }
 
 class UserError extends AppError {
@@ -99,6 +100,11 @@ export const errorHandler =
             userId,
           `You should create account first!!!\nRun command /${Commands.START}}`
           );
+          return;
+        }
+
+        if (error.isValidationError()) {
+          void botController.bot.sendMessage(userId, error.message);
           return;
         }
 

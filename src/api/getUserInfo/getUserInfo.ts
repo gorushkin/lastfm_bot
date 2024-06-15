@@ -15,6 +15,6 @@ export const getUserInfo = async (
 
     return response.data;
   } catch (error) {
-    throw new AppError.LastFm();
+    throw new AppError.Validation('User does not exist!!!');
   }
 };
