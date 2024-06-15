@@ -21,11 +21,21 @@ export class User {
   @Column()
     username: string;
 
+  @Column({
+    type: 'text',
+    default: 'user',
+    nullable: false,
+    enum: ['admin', 'user']
+  })
+    role: string;
+
   @OneToOne(() => LastFMuser, (lastFMuser) => lastFMuser)
   @JoinColumn()
     lastFMUser?: LastFMuser;
 
-  @ManyToMany(() => LastFMuser, (lastFMUser) => lastFMUser.users, { cascade: true })
+  @ManyToMany(() => LastFMuser, (lastFMUser) => lastFMUser.users, {
+    cascade: true
+  })
   @JoinTable({
     name: 'user_lastfmUser',
     joinColumn: {

@@ -23,11 +23,7 @@ class UserService {
   };
 
   getUsername = async (id: number) => {
-    const user = await this.findUser(id);
-
-    if (user === null) {
-      throw new AppError.User();
-    }
+    const user = await this.getUser(id);
 
     if (user.lastFMUser == null) {
       throw new AppError.LastFm('You have no lastfm username');
@@ -36,7 +32,7 @@ class UserService {
     return user.lastFMUser.username;
   };
 
-  findUser = async (id: number) => {
+  private readonly findUser = async (id: number) => {
     return await this.repo.findOne({
       where: { id },
       relations: { lastFMUser: true, friends: true }
@@ -50,11 +46,7 @@ class UserService {
     id: number;
     lastfmUsername: string;
   }) => {
-    const user = await this.findUser(id);
-
-    if (user === null) {
-      throw new AppError.User();
-    }
+    const user = await this.getUser(id);
 
     const lastFmUser = await lastFMService.getUser(lastfmUsername);
 
@@ -64,9 +56,11 @@ class UserService {
   };
 
   createUser = async (id: number, username?: string) => {
+    const userCount = await this.repo.count();
     const user = new User();
     user.id = id;
     user.username = username ?? '';
+    user.role = userCount === 0 ? 'admin' : 'user';
     await this.repo.save(user);
     return user;
   };
