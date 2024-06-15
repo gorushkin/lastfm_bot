@@ -27,6 +27,11 @@ export const onCallbackQuery = async (
     return;
   }
 
+  if (msg.data === Buttons.ADD_FRIEND) {
+    await botController.showSetFriendUsernameScreen(msg.message);
+    return;
+  }
+
   if (msg.data === Buttons.CANCEL) {
     await botController.cancelActions(msg.message);
     return;

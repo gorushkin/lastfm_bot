@@ -1,7 +1,11 @@
 import {
+  AfterLoad,
+  BeforeInsert,
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   Unique
@@ -21,4 +25,32 @@ export class User {
   @OneToOne(() => LastFMuser, (lastFMuser) => lastFMuser)
   @JoinColumn()
     lastFMUser?: LastFMuser;
+
+  @ManyToMany(() => User)
+  @JoinTable({
+    name: 'user_lastfmUser',
+    joinColumn: {
+      name: 'userId',
+      referencedColumnName: 'id'
+    },
+    inverseJoinColumn: {
+      name: 'lastfmUserId',
+      referencedColumnName: 'id'
+    }
+  })
+    friends: LastFMuser[];
+
+  @BeforeInsert()
+  beforeInsertActions () {
+    if (this.friends == null) {
+      this.friends = [];
+    }
+  }
+
+  @AfterLoad()
+  afterLoadActions () {
+    if (this.friends == null) {
+      this.friends = [];
+    }
+  }
 }

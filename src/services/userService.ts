@@ -126,6 +126,28 @@ class UserService {
 
     return response.friends.user;
   };
+
+  addFriend = async ({
+    friendName,
+    id
+  }: {
+    id: number;
+    friendName: string;
+  }) => {
+    const user = await this.findUser(id);
+
+    if (user === null) {
+      throw new AppError.User();
+    }
+
+    const friend = await lastFMService.getUser(friendName);
+
+    user.friends.push(friend);
+
+    await this.repo.save(user);
+
+    return friend;
+  };
 }
 
 export const userService = new UserService();

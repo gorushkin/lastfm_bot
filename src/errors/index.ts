@@ -1,3 +1,4 @@
+import { Commands } from '../constants';
 import { type BotController } from 'controllers';
 
 enum AppErrors {
@@ -77,10 +78,7 @@ AppError.Service = ServiceError;
 AppError.Validation = ValidationError;
 AppError.SystemError = SystemError;
 
-const sendDefaultError = (
-  botController: BotController,
-  userId: number
-) => {
+const sendDefaultError = (botController: BotController, userId: number) => {
   void botController.bot.sendMessage(userId, 'Something went wrong!!!');
 };
 
@@ -99,7 +97,15 @@ export const errorHandler =
         if (error.isUserError()) {
           void botController.bot.sendMessage(
             userId,
-            'You should create account first!!! Run command /start'
+          `You should create account first!!!\nRun command /${Commands.START}}`
+          );
+          return;
+        }
+
+        if (error.isLastFMError()) {
+          void botController.bot.sendMessage(
+            userId,
+          `You should set your lastfm name!!!\nRun command /${Commands.SET_NAME}`
           );
           return;
         }
