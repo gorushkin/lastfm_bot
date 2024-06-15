@@ -6,7 +6,7 @@ import {
 export enum Commands {
   SET_NAME = 'set_name',
   START = 'start',
-  LASTFM_INFO = 'lastfm_history',
+  LASTFM_INFO = 'lastfm_info',
   FRIENDS = 'friends',
 }
 
@@ -14,6 +14,7 @@ export enum Buttons {
   GET_LASTFM_FRIENDS = 'get_lastfm_friends',
   GET_RECENT_TRACKS = 'get_recent_tracks',
   GET_CURRENT_TRACK = 'get_current_playing_track',
+  LASTFM_PROFILE = 'lastfm_profile',
   CANCEL = 'cancel_action',
   ADD_FRIEND = 'add_friend',
 }
@@ -37,6 +38,11 @@ const currentTrackButton: InlineKeyboardButton = {
   callback_data: Buttons.GET_CURRENT_TRACK
 };
 
+const getUserLinkButton = (username: string): InlineKeyboardButton => ({
+  text: 'User profile',
+  url: `https://www.last.fm/user/${username}`
+});
+
 const getFriendsButton: InlineKeyboardButton = {
   text: 'Get friends',
   callback_data: Buttons.GET_LASTFM_FRIENDS
@@ -56,13 +62,14 @@ const getKeyboard = (buttons: InlineKeyboardButton[][]) => ({
   inline_keyboard: buttons
 });
 
-const lastFMInfoKeyboard: SendMessageOptions = {
+const getLastFMInfoKeyboard = (username: string): SendMessageOptions => ({
   reply_markup: {
     ...getKeyboard([
-      [recentTracksButton, currentTrackButton, getFriendsButton]
+      [recentTracksButton, currentTrackButton],
+      [getFriendsButton, getUserLinkButton(username)]
     ])
   }
-};
+});
 
 const defaultKeyboard: SendMessageOptions = {
   reply_markup: {
@@ -76,8 +83,18 @@ const userFriendsKeyboard: SendMessageOptions = {
   }
 };
 
+const getLastFMUserKeyboard = (username: string): SendMessageOptions => ({
+  reply_markup: {
+    ...getKeyboard([
+      [recentTracksButton, currentTrackButton],
+      [getUserLinkButton(username)]
+    ])
+  }
+});
+
 export const keyboard = {
   userFriendsKeyboard,
   defaultKeyboard,
-  lastFMInfoKeyboard
+  getLastFMInfoKeyboard,
+  getLastFMUserKeyboard
 };

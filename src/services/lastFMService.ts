@@ -1,8 +1,8 @@
 import { type Repository } from 'typeorm';
 import { LastFMuser } from '../entity/lastFMUser';
 import { dataSource } from '../connections/data-source';
-import { getUserInfo } from '../api/getUserInfo/getUserInfo';
 import { type LastFmUserDTO } from '../api/getUserInfo/types';
+import { lastFMApiService } from './lastFMApiService';
 
 class LastFMService {
   repo: Repository<LastFMuser>;
@@ -20,9 +20,9 @@ class LastFMService {
 
     if (fromDBUser != null) return fromDBUser;
 
-    const response = await getUserInfo(username);
+    const user = await lastFMApiService.getUserInfo(username);
 
-    const newUser = await this.createUser(response.user);
+    const newUser = await this.createUser(user);
 
     return newUser;
   };

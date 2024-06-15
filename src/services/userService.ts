@@ -2,9 +2,8 @@ import { dataSource } from '../connections/data-source';
 import { User } from '../entity/user';
 import { AppError } from '../errors';
 import { type Repository } from 'typeorm';
-import { lastFMService } from './lstFmUserService';
-import { getRecentTracks } from '../api/getRecentTracks/getRecentTracks';
-import { getGetFriendsRequest } from '../api/getGetFriends/getGetFriends';
+import { lastFMService } from './lastFMService';
+import { lastFMApiService } from './lastFMApiService';
 
 class UserService {
   repo: Repository<User>;
@@ -12,6 +11,16 @@ class UserService {
   constructor () {
     this.repo = dataSource.getRepository(User);
   }
+
+  getUser = async (id: number) => {
+    const user = await this.findUser(id);
+
+    if (user === null) {
+      throw new AppError.User();
+    }
+
+    return user;
+  };
 
   getUsername = async (id: number) => {
     const user = await this.findUser(id);
@@ -30,7 +39,7 @@ class UserService {
   findUser = async (id: number) => {
     return await this.repo.findOne({
       where: { id },
-      relations: { lastFMUser: true }
+      relations: { lastFMUser: true, friends: true }
     });
   };
 
@@ -72,59 +81,46 @@ class UserService {
     return user;
   };
 
-  getConvertedTracks = (
-    tracks: Array<{
-      artist: string;
-      name: string;
-      album: string;
-      url: string;
-    }>,
-    length: number
-  ) => {
-    return tracks
-      .slice(0, length)
-      .map((item) => `<a href="${item.url}">${item.artist}: ${item.name}</a>`)
-      .join('\n');
-  };
-
   getUserRecentTracks = async (id: number) => {
-    const tracks = await this.getUserTracks(id);
+    const username = await this.getUsername(id);
 
-    return this.getConvertedTracks(tracks, 10);
+    return await lastFMApiService.getUserRecentTracks(username);
   };
 
   getUserCurrentTrack = async (id: number) => {
-    const tracks = await this.getUserTracks(id);
-
-    const isPlaying = tracks[0].attr?.nowplaying === 'true';
-
-    return { currentTrackInfo: this.getConvertedTracks(tracks, 1), isPlaying };
-  };
-
-  getUserTracks = async (id: number) => {
     const username = await this.getUsername(id);
 
-    const response = await getRecentTracks(username);
+    return await lastFMApiService.getUserCurrentTrack(username);
+  };
 
-    const tracks = response.recenttracks.track.map((item) => {
-      return {
-        artist: item.artist['#text'],
-        name: item.name,
-        album: item.album['#text'],
-        url: item.url,
-        attr: item['@attr']
-      };
-    });
+  getUserLastFmFriends = async (id: number) => {
+    const username = await this.getUsername(id);
 
-    return tracks;
+    return await lastFMApiService.getUserFriends(username);
+  };
+
+  addFriend = async ({
+    friendName,
+    id
+  }: {
+    id: number;
+    friendName: string;
+  }) => {
+    const user = await this.getUser(id);
+
+    const friend = await lastFMService.getUser(friendName);
+
+    user.friends.push(friend);
+
+    await this.repo.save(user);
+
+    return friend;
   };
 
   getUserFriends = async (id: number) => {
-    const username = await this.getUsername(id);
+    const user = await this.getUser(id);
 
-    const response = await getGetFriendsRequest(username);
-
-    return response.friends.user;
+    return user.friends;
   };
 }
 

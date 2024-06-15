@@ -3,8 +3,10 @@ import {
   Column,
   Unique,
   PrimaryGeneratedColumn,
-  OneToMany
+  OneToMany,
+  ManyToMany
 } from 'typeorm';
+import { User } from './user';
 
 @Entity()
 @Unique(['id', 'username'])
@@ -15,12 +17,15 @@ export class LastFMuser {
   @Column()
     username: string;
 
-  @OneToMany(() => LastFMuser, (lastFMuser) => lastFMuser.friends)
-    friends: LastFMuser[];
+  @OneToMany(() => User, (user) => user.lastFMUser)
+    users: User[];
 
   @Column()
     image: string;
 
   @Column()
     url: string;
+
+  @ManyToMany(() => User, (user) => user.friends)
+    friends: User[];
 }

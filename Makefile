@@ -23,3 +23,6 @@ init: build create
 
 print_hello:
 	echo "Hello, world!"
+
+reset_db:
+	rm -rf ./db.sqlite

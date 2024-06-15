@@ -1,7 +1,8 @@
 export enum MODE {
-  SET_INPUT_NAME = 'SET_INPUT_NAME',
-  GET_RECENT_TRACKS = 'GET_RECENT_TRACKS',
-  NONE = 'NONE',
+  SET_INPUT_NAME,
+  SET_INPUT_FRIEND_NAME,
+  GET_RECENT_TRACKS,
+  NONE,
 }
 
 type UserId = number;
@@ -9,43 +10,40 @@ type UserId = number;
 class State {
   data = new Map<UserId, MODE>();
 
-  setMode = (id: number, screen: MODE) => this.data.set(id, screen);
+  private readonly setMode = (id: number, screen: MODE) =>
+    this.data.set(id, screen);
+
+  private readonly getMode = (id: number) => this.data.get(id);
 
   resetMode = (id: number) => {
-    this.setMode(id, MODE.NONE)
-  }
+    this.data.delete(id);
+  };
 
-  setModeInputLastFM = (id: number) => {
+  setModeInputUsername = (id: number) => {
     this.setMode(id, MODE.SET_INPUT_NAME);
   };
 
-  setModeNone = (id: number) => this.setMode(id, MODE.NONE);
-
-  checkUser = (id: number) => !!this.data.has(id);
-
-  initUser = (id: number) => {
-    if (!this.checkUser(id)) {
-      this.setMode(id, MODE.NONE);
-    }
-    return this.getMode(id);
+  setModeInputFriendName = (id: number) => {
+    this.setMode(id, MODE.SET_INPUT_FRIEND_NAME);
   };
-
-  getMode = (id: number) => this.data.get(id);
 
   getUsers = () => {
     return Array.from(this.data.keys());
   };
 
-  getUserInfo = (id: number) => {
-    return {
-      id,
-      screen: this.getMode(id)
-    };
+  isInputNameMode = (id: number) => {
+    return this.getMode(id) === MODE.SET_INPUT_NAME;
   };
 
-  getInfo = () => {
-    const info = this.getUsers().map(this.getUserInfo);
-    console.info('data', info);
+  isFriendNameInputMode = (id: number) => {
+    return this.getMode(id) === MODE.SET_INPUT_FRIEND_NAME;
+  };
+
+  getUserInfo = (id: number) => {
+    return {
+      isModeInputName: this.isInputNameMode(id),
+      isModeInputFriendName: this.isFriendNameInputMode(id)
+    };
   };
 }
 
