@@ -89,16 +89,18 @@ export const errorHandler =
       try {
         await func;
       } catch (error) {
-        console.error(error);
         if (!(error instanceof AppError)) {
+          console.error(error);
           sendDefaultError(botController, userId);
           return;
         }
 
+        console.error(error.message);
+
         if (error.isUserError()) {
           void botController.bot.sendMessage(
             userId,
-          `You should create account first!!!\nRun command /${Commands.START}}`
+          `You should create account first!!!\nRun command /${Commands.START}`
           );
           return;
         }

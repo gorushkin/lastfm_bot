@@ -64,9 +64,11 @@ class UserService {
   };
 
   createUser = async (id: number, username?: string) => {
+    const userCount = await this.repo.count();
     const user = new User();
     user.id = id;
     user.username = username ?? '';
+    user.role = userCount === 0 ? 'admin' : 'user';
     await this.repo.save(user);
     return user;
   };
