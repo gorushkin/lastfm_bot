@@ -39,7 +39,7 @@ const addRoutes = async (bot: TelegramBot) => {
     await errorHandler(
       botController,
       msg.chat.id
-    )(botController.getUserRecentTracks(msg));
+    )(botController.onLastFMInfoCommand(msg));
   });
 
   bot.on('callback_query', async (msg) => {
