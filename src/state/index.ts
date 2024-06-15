@@ -13,8 +13,10 @@ class State {
   private readonly setMode = (id: number, screen: MODE) =>
     this.data.set(id, screen);
 
+  private readonly getMode = (id: number) => this.data.get(id);
+
   resetMode = (id: number) => {
-    this.setMode(id, MODE.NONE);
+    this.data.delete(id);
   };
 
   setModeInputUsername = (id: number) => {
@@ -25,33 +27,22 @@ class State {
     this.setMode(id, MODE.SET_INPUT_FRIEND_NAME);
   };
 
-  private readonly checkUser = (id: number) => !!this.data.has(id);
-
-  initUser = (id: number) => {
-    if (!this.checkUser(id)) {
-      this.setMode(id, MODE.NONE);
-    }
-    return this.getMode(id);
-  };
-
-  private readonly getMode = (id: number) => this.data.get(id);
-
   getUsers = () => {
     return Array.from(this.data.keys());
   };
 
-  isModeInputName = (id: number) => {
+  isInputNameMode = (id: number) => {
     return this.getMode(id) === MODE.SET_INPUT_NAME;
   };
 
-  isModeInputFriendName = (id: number) => {
+  isFriendNameInputMode = (id: number) => {
     return this.getMode(id) === MODE.SET_INPUT_FRIEND_NAME;
   };
 
   getUserInfo = (id: number) => {
     return {
-      isModeInputName: this.isModeInputName(id),
-      isModeInputFriendName: this.isModeInputFriendName(id)
+      isModeInputName: this.isInputNameMode(id),
+      isModeInputFriendName: this.isFriendNameInputMode(id)
     };
   };
 }

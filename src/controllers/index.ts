@@ -79,6 +79,9 @@ class BotController {
 
     this.state.setModeInputFriendName(msg.chat.id);
 
+    const friends = await userService.getUserFriends(msg.chat.id);
+    console.log('friends: ', friends);
+
     void this.bot.sendMessage(
       msg.chat.id,
       'I will show your friends here',
@@ -166,8 +169,7 @@ class BotController {
     const user = await userService.initUser({ id, username });
 
     if (user == null) {
-      stateInstance.initUser(id);
-      stateInstance.setModeInputUsername(id);
+      this.state.setModeInputUsername(id);
     }
 
     return user;

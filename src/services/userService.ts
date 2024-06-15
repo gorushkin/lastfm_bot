@@ -2,9 +2,8 @@ import { dataSource } from '../connections/data-source';
 import { User } from '../entity/user';
 import { AppError } from '../errors';
 import { type Repository } from 'typeorm';
-import { lastFMService } from './lstFmUserService';
-import { getRecentTracks } from '../api/getRecentTracks/getRecentTracks';
-import { getGetFriendsRequest } from '../api/getGetFriends/getGetFriends';
+import { lastFMService } from './lastFMService';
+import { lastFMAPIService } from './lastFMAPIService';
 
 class UserService {
   repo: Repository<User>;
@@ -104,27 +103,13 @@ class UserService {
   getUserTracks = async (id: number) => {
     const username = await this.getUsername(id);
 
-    const response = await getRecentTracks(username);
-
-    const tracks = response.recenttracks.track.map((item) => {
-      return {
-        artist: item.artist['#text'],
-        name: item.name,
-        album: item.album['#text'],
-        url: item.url,
-        attr: item['@attr']
-      };
-    });
-
-    return tracks;
+    return await lastFMAPIService.getUserTracks(username);
   };
 
   getUserFriends = async (id: number) => {
     const username = await this.getUsername(id);
 
-    const response = await getGetFriendsRequest(username);
-
-    return response.friends.user;
+    return await lastFMAPIService.getUserFriends(username);
   };
 
   addFriend = async ({
